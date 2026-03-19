@@ -1,1 +1,63 @@
+// =============================
+// VPN Authentication Failures Hunting Queries
+// Platform: Microsoft Sentinel
+// Use Case: Brute Force / Password Spray Detection
+// =============================
 
+// Common Filter (Reusable)
+let VPNLogs = Syslog
+| where HostName == "VPN-Gateway-IP"
+| where SyslogMessage contains "%ASA-6-113015"
+| parse SyslogMessage with * "user = " User " : user IP = " SrcIP;
+
+
+
+// Query 1: Extract Authentication Failures
+
+VPNLogs
+| project TimeGenerated, User, SrcIP
+
+// Purpose: Identify all failed VPN authentication attempts
+
+
+
+// Query 2: Top Attacking IPs
+
+VPNLogs
+| summarize FailedAttempts = count() by SrcIP
+| sort by FailedAttempts desc
+
+// Purpose: Identify source IPs generating high login failures
+// MITRE: T1110 - Brute Force
+
+
+
+// Query 3: Targeted Usernames
+
+VPNLogs
+| summarize FailedAttempts = count() by User
+| sort by FailedAttempts desc
+
+// Purpose: Identify high-value or targeted accounts
+// MITRE: Credential Access
+
+
+
+// Query 4: Username Enumeration
+
+VPNLogs
+| summarize UniqueUsers = dcount(User) by SrcIP
+| sort by UniqueUsers desc
+
+// Purpose: Detect username enumeration/password spraying
+// MITRE: T1110.003 - Password Spraying
+
+
+// Query 5: Login Rate Analysis
+
+VPNLogs
+| summarize Attempts = count() by SrcIP, bin(TimeGenerated, 5m)
+| render timechart
+
+// Purpose: Identify automation patterns (constant vs burst traffic)
+// MITRE: Brute Force Automation
