@@ -1,5 +1,5 @@
 # threat-hunting-case-studies
 
-Hi, Thanks for visiting this section. 
+Hi, Thanks for visiting my repo on threat hunting.
 
-This section contains threat hunting investigations focused on Linux systems, including SSH attacks, privilege escalation, and persistence techniques.
+This repo consist of different folders, enriched with different hunts on various IT assets.
