@@ -1,0 +1,23 @@
+## Detection Rule: VPN Brute Force
+
+### Query
+Syslog
+| where SyslogMessage contains "%ASA-6-113015"
+| summarize FailedAttempts=count() by SrcIP, bin(TimeGenerated, 5m)
+| where FailedAttempts > 100
+
+### Logic
+Trigger alert when:
+- >100 failures
+- Within 5 minutes
+- Same source IP
+
+### Severity
+Medium / High
+
+### MITRE
+T1110 - Brute Force
+
+### False Positives
+- Internal scanners
+- Security testing tools
